@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+xgboost
+networkx
+pydantic
+sqlalchemy
+python-dotenv
+langgraph
+langchain
