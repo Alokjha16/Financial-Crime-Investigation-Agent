@@ -1,4 +1,4 @@
-# Autonomous Financial Crime Investigation Agent/.//.
+# Autonomous Financial Crime Investigation Agent/.//./
 
 SIH PS-2 prototype.
 
