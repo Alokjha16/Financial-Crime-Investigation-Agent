@@ -19,3 +19,12 @@ models/*
 .idea/
 .vscode/
 .DS_Store
+# Large/raw datasets
+data/raw/
+
+# Full processed datasets
+data/processed/*.csv
+
+# Allow small development samples
+!data/processed/accounts_sample.csv
+!data/processed/transactions_sample.csv
