@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "description": "Four demo investigation scenarios built on existing IBM HI-Small ground-truth instances.",
+  "ground_truth_source": "data/ground_truth/laundering_patterns.json",
+  "total_ground_truth_patterns": 370,
+  "synthetic_evidence": true,
+  "scenarios": [
+    {
+      "scenario_id": "SCN-001",
+      "name": "Fan-Out Investigation",
+      "typology": "FAN-OUT",
+      "pattern_type": "FAN-OUT:  Max 16-degree Fan-Out",
+      "source": "IBM HI-Small ground truth",
+      "ground_truth_pattern_index": 0
+    },
+    {
+      "scenario_id": "SCN-002",
+      "name": "Cycle Investigation",
+      "typology": "CYCLE",
+      "pattern_type": "CYCLE:  Max 10 hops",
+      "source": "IBM HI-Small ground truth",
+      "ground_truth_pattern_index": 1
+    },
+    {
+      "scenario_id": "SCN-003",
+      "name": "Stack Investigation",
+      "typology": "STACK",
+      "pattern_type": "STACK",
+      "source": "IBM HI-Small ground truth",
+      "ground_truth_pattern_index": 3
+    },
+    {
+      "scenario_id": "SCN-004",
+      "name": "Bipartite Network Investigation",
+      "typology": "BIPARTITE",
+      "pattern_type": "BIPARTITE",
+      "source": "IBM HI-Small ground truth",
+      "ground_truth_pattern_index": 9
+    }
+  ]
+}

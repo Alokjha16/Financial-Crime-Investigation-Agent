@@ -1,0 +1,5 @@
+complaint_id,scenario_id,account_id,complaint_date,complaint_type,severity,status,description,evidence_source
+SCN-001-CMP-001,SCN-001,800737690,2022-09-05,SUSPICIOUS_TRANSACTION,HIGH,OPEN,Synthetic complaint associated with the FAN-OUT investigation scenario.,SYNTHETIC_DEMO_DATA
+SCN-002-CMP-001,SCN-002,8013C4030,2022-09-05,SUSPICIOUS_TRANSACTION,HIGH,OPEN,Synthetic complaint associated with the CYCLE investigation scenario.,SYNTHETIC_DEMO_DATA
+SCN-003-CMP-001,SCN-003,8000DD890,2022-09-05,SUSPICIOUS_TRANSACTION,HIGH,OPEN,Synthetic complaint associated with the STACK investigation scenario.,SYNTHETIC_DEMO_DATA
+SCN-004-CMP-001,SCN-004,80103A420,2022-09-05,SUSPICIOUS_TRANSACTION,HIGH,OPEN,Synthetic complaint associated with the BIPARTITE investigation scenario.,SYNTHETIC_DEMO_DATA

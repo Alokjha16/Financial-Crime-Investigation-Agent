@@ -1,0 +1,177 @@
+{
+  "scenario_id": "SCN-002",
+  "name": "Cycle Investigation",
+  "description": "Funds move through a multi-hop circular transaction network.",
+  "source": "IBM HI-Small ground truth",
+  "synthetic_evidence": true,
+  "pattern_type": "CYCLE:  Max 10 hops",
+  "typology": "CYCLE",
+  "ground_truth": {
+    "pattern_index": 1,
+    "transaction_count": 10,
+    "is_laundering": true
+  },
+  "entry_evidence": {
+    "account_ids": [
+      "8013C4030",
+      "80BC62F10",
+      "80F025640",
+      "80FD27570",
+      "8090E8EB0",
+      "804ABCE90",
+      "805494C30",
+      "801B949C0",
+      "803DE1580",
+      "80ACEE280"
+    ],
+    "transactions": [
+      {
+        "timestamp": "2022/09/01 00:03",
+        "from_bank": "01467",
+        "from_account": "8013C4030",
+        "to_bank": "020",
+        "to_account": "80BC62F10",
+        "amount_received": 58702.1,
+        "receiving_currency": "Yuan",
+        "amount_paid": 58702.1,
+        "payment_currency": "Yuan",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/01 02:52",
+        "from_bank": "020",
+        "from_account": "80BC62F10",
+        "to_bank": "0240229",
+        "to_account": "80F025640",
+        "amount_received": 7332.87,
+        "receiving_currency": "Swiss Franc",
+        "amount_paid": 7332.87,
+        "payment_currency": "Swiss Franc",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/02 08:44",
+        "from_bank": "0240229",
+        "from_account": "80F025640",
+        "to_bank": "0217",
+        "to_account": "80FD27570",
+        "amount_received": 26443.7,
+        "receiving_currency": "Shekel",
+        "amount_paid": 26443.7,
+        "payment_currency": "Shekel",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/02 12:29",
+        "from_bank": "0217",
+        "from_account": "80FD27570",
+        "to_bank": "0024856",
+        "to_account": "8090E8EB0",
+        "amount_received": 10621.24,
+        "receiving_currency": "Canadian Dollar",
+        "amount_paid": 10621.24,
+        "payment_currency": "Canadian Dollar",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/03 10:20",
+        "from_bank": "0024856",
+        "from_account": "8090E8EB0",
+        "to_bank": "0071",
+        "to_account": "804ABCE90",
+        "amount_received": 637140.6,
+        "receiving_currency": "Rupee",
+        "amount_paid": 637140.6,
+        "payment_currency": "Rupee",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/03 12:08",
+        "from_bank": "0071",
+        "from_account": "804ABCE90",
+        "to_bank": "0213737",
+        "to_account": "805494C30",
+        "amount_received": 621578.18,
+        "receiving_currency": "Rupee",
+        "amount_paid": 621578.18,
+        "payment_currency": "Rupee",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/03 13:24",
+        "from_bank": "0213737",
+        "from_account": "805494C30",
+        "to_bank": "014290",
+        "to_account": "801B949C0",
+        "amount_received": 7222.58,
+        "receiving_currency": "Euro",
+        "amount_paid": 7222.58,
+        "payment_currency": "Euro",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/04 03:24",
+        "from_bank": "014290",
+        "from_account": "801B949C0",
+        "to_bank": "0010057",
+        "to_account": "803DE1580",
+        "amount_received": 892031.21,
+        "receiving_currency": "Yen",
+        "amount_paid": 892031.21,
+        "payment_currency": "Yen",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/04 09:44",
+        "from_bank": "0010057",
+        "from_account": "803DE1580",
+        "to_bank": "0028628",
+        "to_account": "80ACEE280",
+        "amount_received": 11364.12,
+        "receiving_currency": "Australian Dollar",
+        "amount_paid": 11364.12,
+        "payment_currency": "Australian Dollar",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      },
+      {
+        "timestamp": "2022/09/04 15:51",
+        "from_bank": "0028628",
+        "from_account": "80ACEE280",
+        "to_bank": "01467",
+        "to_account": "8013C4030",
+        "amount_received": 7945.55,
+        "receiving_currency": "US Dollar",
+        "amount_paid": 7945.55,
+        "payment_currency": "US Dollar",
+        "payment_format": "ACH",
+        "is_laundering": 1
+      }
+    ]
+  },
+  "tools_expected": [
+    "transactions",
+    "account_kyc",
+    "linked_accounts",
+    "complaints"
+  ],
+  "investigation_flow": [
+    "transaction lookup",
+    "account/KYC lookup",
+    "linked-account discovery",
+    "complaint lookup",
+    "graph/network analysis",
+    "pattern detection",
+    "evidence correlation",
+    "risk scoring",
+    "investigation report"
+  ]
+}
