@@ -10,7 +10,6 @@ build/
 *.db
 *.sqlite
 *.sqlite3
-data/raw/*
 data/processed/*
 models/*
 !data/raw/.gitkeep
@@ -20,7 +19,6 @@ models/*
 .vscode/
 .DS_Store
 # Large/raw datasets
-data/raw/
 
 # Full processed datasets
 data/processed/*.csv
