@@ -3,3 +3,4 @@ data/raw/HI-Small_accounts.csv filter=lfs diff=lfs merge=lfs -text
 data/raw/HI-Small_Patterns.txt filter=lfs diff=lfs merge=lfs -text
 models/baseline_fraud_model.joblib filter=lfs diff=lfs merge=lfs -text
 models/enhanced_fraud_model.joblib filter=lfs diff=lfs merge=lfs -text
+data/processed/transactions_enhanced.csv filter=lfs diff=lfs merge=lfs -text
