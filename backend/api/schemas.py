@@ -182,3 +182,25 @@ class ComplaintsResponse(BaseModel):
     account_id: str
     complaints: List[Dict[str, Any]]
     total_count: int
+
+
+class AgentResultContract(BaseModel):
+    case_id: str
+    account_key: str
+    risk_score: int = Field(ge=0, le=100)
+    risk_level: str
+    typology: str
+    evidence: List[str]
+    risk_breakdown: List[Dict[str, Any]]
+    pattern_analysis: Dict[str, Any]
+    collected_evidence: List[Dict[str, Any]]
+    investigation_trace: List[Dict[str, Any]]
+    recommendation: str
+    investigator_explanation: str
+    explanation_source: str
+
+
+class AgentResultResponse(BaseModel):
+    case_id: str
+    status: CaseStatus
+    message: str

@@ -3,23 +3,19 @@ import os
 
 from google import genai
 
-
 # =========================================================
 # GEMINI CLIENT
 # =========================================================
 
-client = genai.Client(
-    api_key=os.environ.get("GEMINI_API_KEY")
-)
+client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 
 # =========================================================
 # GENERATE INVESTIGATOR EXPLANATION
 # =========================================================
 
-def generate_explanation(
-    report: dict
-) -> dict:
+
+def generate_explanation(report: dict) -> dict:
 
     prompt = f"""
 You are a financial crime investigation analyst.
@@ -49,28 +45,19 @@ Keep the explanation concise and professional.
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.6-flash",
-            contents=prompt
+            model="gemini-3.6-flash", contents=prompt
         )
 
         text = response.text.strip()
 
-        return {
-            "explanation": text,
-            "source": "GEMINI"
-        }
+        return {"explanation": text, "source": "GEMINI"}
 
     except Exception as e:
-        print(
-            f"\n[GEMINI EXPLANATION ERROR] "
-            f"{type(e).__name__}: {e}\n"
-        )
+        print(f"\n[GEMINI EXPLANATION ERROR] " f"{type(e).__name__}: {e}\n")
 
         return {
-            "explanation": build_fallback_explanation(
-                report
-            ),
-            "source": "DETERMINISTIC_FALLBACK"
+            "explanation": build_fallback_explanation(report),
+            "source": "DETERMINISTIC_FALLBACK",
         }
 
 
@@ -78,39 +65,20 @@ Keep the explanation concise and professional.
 # DETERMINISTIC FALLBACK
 # =========================================================
 
-def build_fallback_explanation(
-    report: dict
-) -> str:
 
-    risk_level = report.get(
-        "risk_level",
-        "UNKNOWN"
-    )
+def build_fallback_explanation(report: dict) -> str:
 
-    score = report.get(
-        "risk_score",
-        0
-    )
+    risk_level = report.get("risk_level", "UNKNOWN")
 
-    typology = report.get(
-        "typology",
-        "UNKNOWN"
-    )
+    score = report.get("risk_score", 0)
 
-    recommendation = report.get(
-        "recommendation",
-        "REVIEW"
-    )
+    typology = report.get("typology", "UNKNOWN")
 
-    evidence = report.get(
-        "evidence",
-        []
-    )
+    recommendation = report.get("recommendation", "REVIEW")
 
-    evidence_text = "\n".join(
-        f"- {item}"
-        for item in evidence
-    )
+    evidence = report.get("evidence", [])
+
+    evidence_text = "\n".join(f"- {item}" for item in evidence)
 
     return f"""
 summary:

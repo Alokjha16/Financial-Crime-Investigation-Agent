@@ -9,27 +9,27 @@ from agent.tools import (
     get_linked_accounts,
     get_complaints,
     get_transaction_graph,
-        get_scenario_transactions,
+    get_scenario_transactions,
 )
 from agent.gemini import choose_investigation_plan
 from agent.risk import correlate_evidence
 from agent.pattern_engine import detect_all_patterns
 
-
-CONTROLLED_SCENARIOS = frozenset({
-    "SCN-001",
-    "SCN-002",
-    "SCN-003",
-    "SCN-004",
-    "SCN-005",
-})
+CONTROLLED_SCENARIOS = frozenset(
+    {
+        "SCN-001",
+        "SCN-002",
+        "SCN-003",
+        "SCN-004",
+        "SCN-005",
+    }
+)
 
 
 def has_scenario_evidence(state: InvestigationState) -> bool:
     """Return whether controlled scenario transactions are already loaded."""
     return any(
-        "scenario_evidence" in observation
-        for observation in state["observations"]
+        "scenario_evidence" in observation for observation in state["observations"]
     )
 
 
@@ -42,6 +42,7 @@ def get_investigation_config(state: InvestigationState) -> dict:
             return scenario_evidence.get("investigation_config", {})
 
     return {}
+
 
 def add_trace_event(
     state: InvestigationState,
@@ -57,9 +58,11 @@ def add_trace_event(
         },
     ]
 
+
 # =========================================================
 # GEMINI / DEMO AGENT NODE
 # =========================================================
+
 
 def agent_node(state: InvestigationState):
 
@@ -75,13 +78,9 @@ def agent_node(state: InvestigationState):
 
         if not has_scenario_evidence(state):
 
-            timeline.append(
-                "AGENT: Using deterministic controlled scenario flow"
-            )
+            timeline.append("AGENT: Using deterministic controlled scenario flow")
 
-            timeline.append(
-                "AGENT DECISION: get_scenario_evidence"
-            )
+            timeline.append("AGENT DECISION: get_scenario_evidence")
 
             timeline.append(
                 "AGENT REASON: Loading controlled scenario transaction "
@@ -92,11 +91,10 @@ def agent_node(state: InvestigationState):
                 "decision": "get_scenario_evidence",
                 "timeline": timeline,
                 "investigation_trace": add_trace_event(
-                  state,
-                 "AGENT_DECISION",
-                 decision="get_scenario_evidence",
-            ),
-
+                    state,
+                    "AGENT_DECISION",
+                    decision="get_scenario_evidence",
+                ),
             }
 
         investigation_config = get_investigation_config(state)
@@ -107,13 +105,9 @@ def agent_node(state: InvestigationState):
 
         if deterministic_tools and not state.get("investigation_plan"):
 
-            timeline.append(
-                "AGENT: Using configured deterministic investigation plan"
-            )
+            timeline.append("AGENT: Using configured deterministic investigation plan")
 
-            timeline.append(
-                f"AGENT PLAN: {', '.join(deterministic_tools)}"
-            )
+            timeline.append(f"AGENT PLAN: {', '.join(deterministic_tools)}")
 
             return {
                 "investigation_plan": deterministic_tools,
@@ -131,13 +125,9 @@ def agent_node(state: InvestigationState):
         # to continue straight to pattern analysis.
         if scenario_id != "SCN-002" and not deterministic_tools:
 
-            timeline.append(
-                "AGENT: Using deterministic demo investigation flow"
-            )
+            timeline.append("AGENT: Using deterministic demo investigation flow")
 
-            timeline.append(
-                "AGENT DECISION: investigation_complete"
-            )
+            timeline.append("AGENT DECISION: investigation_complete")
 
             timeline.append(
                 "AGENT REASON: "
@@ -167,16 +157,12 @@ def agent_node(state: InvestigationState):
                 "get_transactions",
                 "get_kyc",
                 "get_linked_accounts",
-                "get_complaints"
+                "get_complaints",
             ]
 
-            timeline.append(
-                "AGENT: Deterministic demo mode"
-            )
+            timeline.append("AGENT: Deterministic demo mode")
 
-            timeline.append(
-                f"AGENT PLAN: {', '.join(tools)}"
-            )
+            timeline.append(f"AGENT PLAN: {', '.join(tools)}")
 
             timeline.append(
                 "AGENT REASON: "
@@ -201,9 +187,7 @@ def agent_node(state: InvestigationState):
 
     if not state.get("investigation_plan"):
 
-        timeline.append(
-            "AGENT: Asking Gemini to create investigation plan"
-        )
+        timeline.append("AGENT: Asking Gemini to create investigation plan")
 
         plan = choose_investigation_plan(
             account_key=state["account_key"],
@@ -214,17 +198,11 @@ def agent_node(state: InvestigationState):
 
             tools = plan["tools"]
 
-            timeline.append(
-                "AGENT: Gemini investigation plan received"
-            )
+            timeline.append("AGENT: Gemini investigation plan received")
 
-            timeline.append(
-                f"AGENT PLAN: {', '.join(tools)}"
-            )
+            timeline.append(f"AGENT PLAN: {', '.join(tools)}")
 
-            timeline.append(
-                f"AGENT REASON: {plan.get('reason', '')}"
-            )
+            timeline.append(f"AGENT REASON: {plan.get('reason', '')}")
 
             return {
                 "investigation_plan": tools,
@@ -237,24 +215,18 @@ def agent_node(state: InvestigationState):
                 ),
             }
 
-        timeline.append(
-            "AGENT: Gemini unavailable"
-        )
+        timeline.append("AGENT: Gemini unavailable")
 
         fallback_plan = [
             "get_transactions",
             "get_kyc",
             "get_linked_accounts",
-            "get_complaints"
+            "get_complaints",
         ]
 
-        timeline.append(
-            "AGENT: Falling back to deterministic investigation plan"
-        )
+        timeline.append("AGENT: Falling back to deterministic investigation plan")
 
-        timeline.append(
-            f"AGENT PLAN: {', '.join(fallback_plan)}"
-        )
+        timeline.append(f"AGENT PLAN: {', '.join(fallback_plan)}")
 
         return {
             "investigation_plan": fallback_plan,
@@ -270,24 +242,18 @@ def agent_node(state: InvestigationState):
         # GEMINI FALLBACK
         # =================================================
 
-        timeline.append(
-            "AGENT: Gemini unavailable"
-        )
+        timeline.append("AGENT: Gemini unavailable")
 
-        timeline.append(
-            "AGENT: Falling back to deterministic investigation plan"
-        )
+        timeline.append("AGENT: Falling back to deterministic investigation plan")
 
         fallback_plan = [
             "get_transactions",
             "get_kyc",
             "get_linked_accounts",
-            "get_complaints"
+            "get_complaints",
         ]
 
-        timeline.append(
-            f"AGENT PLAN: {', '.join(fallback_plan)}"
-        )
+        timeline.append(f"AGENT PLAN: {', '.join(fallback_plan)}")
 
         return {
             "investigation_plan": fallback_plan,
@@ -303,11 +269,7 @@ def agent_node(state: InvestigationState):
 
     used_tools = state["used_tools"]
 
-    remaining_tools = [
-        tool
-        for tool in plan
-        if tool not in used_tools
-    ]
+    remaining_tools = [tool for tool in plan if tool not in used_tools]
 
     # =====================================================
     # PLAN COMPLETE
@@ -315,9 +277,7 @@ def agent_node(state: InvestigationState):
 
     if not remaining_tools:
 
-        timeline.append(
-            "AGENT DECISION: investigation_complete"
-        )
+        timeline.append("AGENT DECISION: investigation_complete")
 
         timeline.append(
             "AGENT REASON: "
@@ -341,13 +301,10 @@ def agent_node(state: InvestigationState):
 
     tool_name = remaining_tools[0]
 
-    timeline.append(
-        f"AGENT DECISION: {tool_name}"
-    )
+    timeline.append(f"AGENT DECISION: {tool_name}")
 
     timeline.append(
-        "AGENT REASON: "
-        "Executing the next tool from the investigation plan."
+        "AGENT REASON: " "Executing the next tool from the investigation plan."
     )
 
     return {
@@ -361,71 +318,61 @@ def agent_node(state: InvestigationState):
     }
 
     # =========================================================
+
+
 # TRANSACTION TOOL NODE
 # =========================================================
 
-def transaction_tool_node(
-    state: InvestigationState
-):
+
+def transaction_tool_node(state: InvestigationState):
 
     timeline = state["timeline"]
 
-    timeline.append(
-        "TOOL CALL: get_transactions()"
-    )
+    timeline.append("TOOL CALL: get_transactions()")
 
-    result = get_transactions(
-        state["account_key"]
-    )
+    result = get_transactions(state["account_key"])
 
     timeline.append(
-        f"TOOL RESULT: "
-        f"{result['transaction_count']} transactions found"
+        f"TOOL RESULT: " f"{result['transaction_count']} transactions found"
     )
 
     return {
-    "transactions": result["transactions"],
+        "transactions": result["transactions"],
+        "observations": [
+            *state["observations"],
+            result,
+        ],
+        "used_tools": [
+            *state["used_tools"],
+            "get_transactions",
+        ],
+        "timeline": timeline,
+        "investigation_trace": [
+            *state["investigation_trace"],
+            {
+                "event_type": "TOOL_CALL",
+                "tool": "get_transactions",
+            },
+            {
+                "event_type": "TOOL_RESULT",
+                "tool": "get_transactions",
+                "status": "SUCCESS",
+                "transaction_count": result["transaction_count"],
+            },
+        ],
+    }
 
-    "observations": [
-        *state["observations"],
-        result,
-    ],
-
-    "used_tools": [
-        *state["used_tools"],
-        "get_transactions",
-    ],
-
-    "timeline": timeline,
-
-    "investigation_trace": [
-        *state["investigation_trace"],
-        {
-            "event_type": "TOOL_CALL",
-            "tool": "get_transactions",
-        },
-        {
-            "event_type": "TOOL_RESULT",
-            "tool": "get_transactions",
-            "status": "SUCCESS",
-            "transaction_count": result["transaction_count"],
-        },
-    ],
-}
 
 # =========================================================
 # KYC TOOL NODE
 # =========================================================
 
-def kyc_tool_node(
-    state: InvestigationState
-):
+
+def kyc_tool_node(state: InvestigationState):
 
     timeline = state["timeline"]
 
-    timeline.append(
-        "TOOL CALL: get_kyc()"
-    )
+    timeline.append("TOOL CALL: get_kyc()")
 
     result = get_kyc(
         state["account_key"],
@@ -445,62 +392,50 @@ def kyc_tool_node(
 
     else:
 
-        timeline.append(
-            "TOOL RESULT: KYC record not found"
-        )
+        timeline.append("TOOL RESULT: KYC record not found")
 
     return {
-      "observations": [
-        *state["observations"],
-        result,
-    ],
-
-    "used_tools": [
-        *state["used_tools"],
-        "get_kyc",
-    ],
-
-    "timeline": timeline,
-
-    "investigation_trace": [
-        *state["investigation_trace"],
-        {
-            "event_type": "TOOL_CALL",
-            "tool": "get_kyc",
-        },
-        {
-            "event_type": "TOOL_RESULT",
-            "tool": "get_kyc",
-            "status": "SUCCESS",
-            "kyc_status": result.get("kyc_status"),
-            "risk_rating": result.get("risk_rating"),
-        },
-    ],
-}
+        "observations": [
+            *state["observations"],
+            result,
+        ],
+        "used_tools": [
+            *state["used_tools"],
+            "get_kyc",
+        ],
+        "timeline": timeline,
+        "investigation_trace": [
+            *state["investigation_trace"],
+            {
+                "event_type": "TOOL_CALL",
+                "tool": "get_kyc",
+            },
+            {
+                "event_type": "TOOL_RESULT",
+                "tool": "get_kyc",
+                "status": "SUCCESS",
+                "kyc_status": result.get("kyc_status"),
+                "risk_rating": result.get("risk_rating"),
+            },
+        ],
+    }
 
 
 # =========================================================
 # LINKED ACCOUNTS TOOL NODE
 # =========================================================
 
-def linked_accounts_tool_node(
-    state: InvestigationState
-):
+
+def linked_accounts_tool_node(state: InvestigationState):
 
     timeline = state["timeline"]
 
-    timeline.append(
-        "TOOL CALL: get_linked_accounts()"
-    )
+    timeline.append("TOOL CALL: get_linked_accounts()")
 
-    result = get_linked_accounts(
-        state["account_key"]
-    )
+    result = get_linked_accounts(state["account_key"])
 
     timeline.append(
-        f"TOOL RESULT: "
-        f"{result['total_linked_accounts']} "
-        f"linked accounts found"
+        f"TOOL RESULT: " f"{result['total_linked_accounts']} " f"linked accounts found"
     )
 
     return {
@@ -508,14 +443,11 @@ def linked_accounts_tool_node(
             *state["observations"],
             result,
         ],
-
         "used_tools": [
             *state["used_tools"],
             "get_linked_accounts",
         ],
-
         "timeline": timeline,
-
         "investigation_trace": [
             *state["investigation_trace"],
             {
@@ -536,15 +468,12 @@ def linked_accounts_tool_node(
 # COMPLAINTS TOOL NODE
 # =========================================================
 
-def complaints_tool_node(
-    state: InvestigationState
-):
+
+def complaints_tool_node(state: InvestigationState):
 
     timeline = state["timeline"]
 
-    timeline.append(
-        "TOOL CALL: get_complaints()"
-    )
+    timeline.append("TOOL CALL: get_complaints()")
 
     result = get_complaints(
         state["account_key"],
@@ -555,8 +484,7 @@ def complaints_tool_node(
     )
 
     timeline.append(
-        f"TOOL RESULT: "
-        f"{result.get('complaint_count', 0)} complaints found"
+        f"TOOL RESULT: " f"{result.get('complaint_count', 0)} complaints found"
     )
 
     return {
@@ -564,27 +492,24 @@ def complaints_tool_node(
             *state["observations"],
             result,
         ],
-
         "used_tools": [
             *state["used_tools"],
             "get_complaints",
         ],
-
         "timeline": timeline,
-
         "investigation_trace": [
-    *state["investigation_trace"],
-    {
-        "event_type": "TOOL_CALL",
-        "tool": "get_complaints",
-    },
-    {
-        "event_type": "TOOL_RESULT",
-        "tool": "get_complaints",
-        "status": "SUCCESS",
-        "complaint_count": result.get("complaint_count", 0),
-    },
-],
+            *state["investigation_trace"],
+            {
+                "event_type": "TOOL_CALL",
+                "tool": "get_complaints",
+            },
+            {
+                "event_type": "TOOL_RESULT",
+                "tool": "get_complaints",
+                "status": "SUCCESS",
+                "complaint_count": result.get("complaint_count", 0),
+            },
+        ],
     }
 
 
@@ -592,17 +517,15 @@ def complaints_tool_node(
 # COUNTERPARTY EVIDENCE NODES
 # =========================================================
 
+
 def counterparty_transactions_tool_node(state: InvestigationState):
     timeline = state["timeline"]
-    counterparty_key = get_investigation_config(state)[
-        "counterparty_account_key"
-    ]
+    counterparty_key = get_investigation_config(state)["counterparty_account_key"]
 
     timeline.append("TOOL CALL: get_counterparty_transactions()")
     result = get_transactions(counterparty_key)
     timeline.append(
-        f"TOOL RESULT: {result['transaction_count']} "
-        "counterparty transactions found"
+        f"TOOL RESULT: {result['transaction_count']} " "counterparty transactions found"
     )
 
     return {
@@ -615,7 +538,6 @@ def counterparty_transactions_tool_node(state: InvestigationState):
             "get_counterparty_transactions",
         ],
         "timeline": timeline,
-
         "investigation_trace": [
             *state["investigation_trace"],
             {
@@ -658,21 +580,20 @@ def counterparty_kyc_tool_node(state: InvestigationState):
             "get_counterparty_kyc",
         ],
         "timeline": timeline,
-
         "investigation_trace": [
-    *state["investigation_trace"],
-    {
-        "event_type": "TOOL_CALL",
-        "tool": "get_counterparty_kyc",
-    },
-    {
-        "event_type": "TOOL_RESULT",
-        "tool": "get_counterparty_kyc",
-        "status": "SUCCESS",
-        "kyc_status": result.get("kyc_status"),
-        "risk_rating": result.get("risk_rating"),
-    },
-    ],
+            *state["investigation_trace"],
+            {
+                "event_type": "TOOL_CALL",
+                "tool": "get_counterparty_kyc",
+            },
+            {
+                "event_type": "TOOL_RESULT",
+                "tool": "get_counterparty_kyc",
+                "status": "SUCCESS",
+                "kyc_status": result.get("kyc_status"),
+                "risk_rating": result.get("risk_rating"),
+            },
+        ],
     }
 
 
@@ -687,8 +608,7 @@ def counterparty_complaints_tool_node(state: InvestigationState):
         source=config.get("complaints_source", "demo"),
     )
     timeline.append(
-        "TOOL RESULT: "
-        f"{result['complaint_count']} counterparty complaints found"
+        "TOOL RESULT: " f"{result['complaint_count']} counterparty complaints found"
     )
 
     return {
@@ -702,18 +622,18 @@ def counterparty_complaints_tool_node(state: InvestigationState):
         ],
         "timeline": timeline,
         "investigation_trace": [
-    *state["investigation_trace"],
-    {
-        "event_type": "TOOL_CALL",
-        "tool": "get_counterparty_complaints",
-    },
-    {
-        "event_type": "TOOL_RESULT",
-        "tool": "get_counterparty_complaints",
-        "status": "SUCCESS",
-        "complaint_count": result.get("complaint_count", 0),
-    },
-],
+            *state["investigation_trace"],
+            {
+                "event_type": "TOOL_CALL",
+                "tool": "get_counterparty_complaints",
+            },
+            {
+                "event_type": "TOOL_RESULT",
+                "tool": "get_counterparty_complaints",
+                "status": "SUCCESS",
+                "complaint_count": result.get("complaint_count", 0),
+            },
+        ],
     }
 
 
@@ -721,37 +641,24 @@ def counterparty_complaints_tool_node(state: InvestigationState):
 # SCENARIO EVIDENCE NODE
 # =========================================================
 
-def scenario_evidence_node(
-    state: InvestigationState
-):
+
+def scenario_evidence_node(state: InvestigationState):
     timeline = state["timeline"]
 
     timeline.append(
-        f"SCENARIO ENGINE: Loading full evidence for "
-        f"{state['scenario_id']}"
+        f"SCENARIO ENGINE: Loading full evidence for " f"{state['scenario_id']}"
     )
 
-    result = get_scenario_transactions(
-        state["scenario_id"]
-    )
+    result = get_scenario_transactions(state["scenario_id"])
 
     timeline.append(
-        f"SCENARIO EVIDENCE: "
-        f"{result['transaction_count']} transactions loaded"
+        f"SCENARIO EVIDENCE: " f"{result['transaction_count']} transactions loaded"
     )
 
     return {
         "transactions": result["transactions"],
-
-        "observations": [
-            *state["observations"],
-            {
-                "scenario_evidence": result
-            }
-        ],
-
+        "observations": [*state["observations"], {"scenario_evidence": result}],
         "timeline": timeline,
-
         "investigation_trace": [
             *state["investigation_trace"],
             {
@@ -768,19 +675,17 @@ def scenario_evidence_node(
         ],
     }
 
+
 # =========================================================
 # PATTERN ANALYSIS NODE
 # =========================================================
 
-def pattern_analysis_node(
-    state: InvestigationState
-):
+
+def pattern_analysis_node(state: InvestigationState):
 
     timeline = state["timeline"]
 
-    timeline.append(
-        "PATTERN ENGINE: Analyzing transaction network"
-    )
+    timeline.append("PATTERN ENGINE: Analyzing transaction network")
 
     if state["scenario_id"] in CONTROLLED_SCENARIOS:
 
@@ -800,28 +705,17 @@ def pattern_analysis_node(
 
     else:
 
-        graph_result = get_transaction_graph(
-            state["account_key"],
-            max_hops=10
-        )
+        graph_result = get_transaction_graph(state["account_key"], max_hops=10)
 
-        graph_transactions = graph_result.get(
-            "transactions",
-            []
-        )
+        graph_transactions = graph_result.get("transactions", [])
 
     result = detect_all_patterns(
         graph_transactions,
         state["account_key"],
-        include_network_patterns=(
-            state["scenario_id"] in CONTROLLED_SCENARIOS
-        )
+        include_network_patterns=(state["scenario_id"] in CONTROLLED_SCENARIOS),
     )
 
-    patterns = result.get(
-        "patterns_detected",
-        []
-    )
+    patterns = result.get("patterns_detected", [])
 
     detected_typology = "NONE"
 
@@ -829,35 +723,21 @@ def pattern_analysis_node(
 
         for pattern in patterns:
 
-            if not pattern.get(
-                "pattern_detected",
-                False
-            ):
+            if not pattern.get("pattern_detected", False):
                 continue
 
-            typology = pattern.get(
-                "typology",
-                "UNKNOWN"
-            )
+            typology = pattern.get("typology", "UNKNOWN")
 
             if detected_typology == "NONE":
                 detected_typology = typology
 
-            timeline.append(
-                f"PATTERN DETECTED: {typology}"
-            )
+            timeline.append(f"PATTERN DETECTED: {typology}")
 
-            evidence = pattern.get(
-                "evidence",
-                {}
-            )
+            evidence = pattern.get("evidence", {})
 
             if typology == "CYCLE":
 
-                cycle_path = evidence.get(
-                    "cycle_path",
-                    []
-                )
+                cycle_path = evidence.get("cycle_path", [])
 
                 timeline.append(
                     f"CYCLE EVIDENCE: "
@@ -867,51 +747,29 @@ def pattern_analysis_node(
 
             elif typology == "FAN-OUT":
 
-                destinations = pattern.get(
-                    "unique_destinations",
-                    0
-                )
+                destinations = pattern.get("unique_destinations", 0)
 
                 timeline.append(
-                    f"FAN-OUT EVIDENCE: "
-                    f"{destinations} destination accounts"
+                    f"FAN-OUT EVIDENCE: " f"{destinations} destination accounts"
                 )
 
             elif typology == "FAN-IN":
 
-                sources = pattern.get(
-                    "unique_sources",
-                    0
-                )
+                sources = pattern.get("unique_sources", 0)
 
-                timeline.append(
-                    f"FAN-IN EVIDENCE: "
-                    f"{sources} source accounts"
-                )
+                timeline.append(f"FAN-IN EVIDENCE: " f"{sources} source accounts")
 
             elif typology == "STACK":
 
-                chain_count = pattern.get(
-                    "chain_count",
-                    0
-                )
+                chain_count = pattern.get("chain_count", 0)
 
-                timeline.append(
-                    f"STACK EVIDENCE: "
-                    f"{chain_count} transaction chains"
-                )
+                timeline.append(f"STACK EVIDENCE: " f"{chain_count} transaction chains")
 
             elif typology == "BIPARTITE":
 
-                sender_count = pattern.get(
-                    "sender_count",
-                    0
-                )
+                sender_count = pattern.get("sender_count", 0)
 
-                receiver_count = pattern.get(
-                    "receiver_count",
-                    0
-                )
+                receiver_count = pattern.get("receiver_count", 0)
 
                 timeline.append(
                     f"BIPARTITE EVIDENCE: "
@@ -921,21 +779,11 @@ def pattern_analysis_node(
 
     else:
 
-        timeline.append(
-            "PATTERN ENGINE: "
-            "No known laundering pattern detected"
-        )
+        timeline.append("PATTERN ENGINE: " "No known laundering pattern detected")
 
     return {
-        "observations": [
-            *state["observations"],
-            {
-                "pattern_analysis": result
-            }
-        ],
-
+        "observations": [*state["observations"], {"pattern_analysis": result}],
         "timeline": timeline,
-
         "investigation_trace": add_trace_event(
             state,
             "PATTERN_ANALYSIS",
@@ -950,19 +798,14 @@ def pattern_analysis_node(
 # RISK ASSESSMENT NODE
 # =========================================================
 
-def risk_assessment_node(
-    state: InvestigationState
-):
+
+def risk_assessment_node(state: InvestigationState):
 
     timeline = state["timeline"]
 
-    timeline.append(
-        "RISK ENGINE: Correlating collected evidence"
-    )
+    timeline.append("RISK ENGINE: Correlating collected evidence")
 
-    result = correlate_evidence(
-        state["observations"]
-    )
+    result = correlate_evidence(state["observations"])
 
     pattern_analysis = {}
 
@@ -970,9 +813,7 @@ def risk_assessment_node(
 
         if "pattern_analysis" in observation:
 
-            pattern_analysis = observation[
-                "pattern_analysis"
-            ]
+            pattern_analysis = observation["pattern_analysis"]
 
     updated_trace = add_trace_event(
         state,
@@ -1008,7 +849,7 @@ def risk_assessment_node(
     }
 
     if state["scenario_id"] == "SCN-005":
-                report["investigator_explanation"] = (
+        report["investigator_explanation"] = (
             f"The investigation identified a "
             f"{result['risk_level']} risk case with a "
             f"score of {result['risk_score']}/100.\n\n"
@@ -1045,19 +886,12 @@ def risk_assessment_node(
     report["explanation_source"] = "DETERMINISTIC"
 
     timeline.append(
-        f"RISK RESULT: "
-        f"{result['risk_level']} "
-        f"({result['risk_score']}/100)"
+        f"RISK RESULT: " f"{result['risk_level']} " f"({result['risk_score']}/100)"
     )
 
-    timeline.append(
-        f"TYPOLOGY: {result['typology']}"
-    )
+    timeline.append(f"TYPOLOGY: {result['typology']}")
 
-    timeline.append(
-        f"RECOMMENDATION: "
-        f"{result['recommendation']}"
-    )
+    timeline.append(f"RECOMMENDATION: " f"{result['recommendation']}")
 
     return {
         "decision": "investigation_complete",
@@ -1065,13 +899,14 @@ def risk_assessment_node(
         "report": report,
         "investigation_trace": updated_trace,
     }
+
+
 # =========================================================
 # ROUTER
 # =========================================================
 
-def route_after_agent(
-    state: InvestigationState
-):
+
+def route_after_agent(state: InvestigationState):
 
     decision = state["decision"]
 
@@ -1099,121 +934,55 @@ def route_after_agent(
     if decision == "investigation_complete":
         return "pattern_analysis"
 
-    raise ValueError(
-        f"Unknown agent decision: {decision}"
-    )
+    raise ValueError(f"Unknown agent decision: {decision}")
+
 
 # =========================================================
 # BUILD GRAPH
 # =========================================================
 
-graph_builder = StateGraph(
-    InvestigationState
-)
+graph_builder = StateGraph(InvestigationState)
 
-graph_builder.add_node(
-    "agent",
-    agent_node
-)
+graph_builder.add_node("agent", agent_node)
 
-graph_builder.add_node(
-    "transactions",
-    transaction_tool_node
-)
+graph_builder.add_node("transactions", transaction_tool_node)
 
-graph_builder.add_node(
-    "pattern_analysis",
-    pattern_analysis_node
-)
+graph_builder.add_node("pattern_analysis", pattern_analysis_node)
 
-graph_builder.add_node(
-    "scenario_evidence",
-    scenario_evidence_node
-)
+graph_builder.add_node("scenario_evidence", scenario_evidence_node)
 
-graph_builder.add_node(
-    "kyc",
-    kyc_tool_node
-)
+graph_builder.add_node("kyc", kyc_tool_node)
 
-graph_builder.add_node(
-    "linked_accounts",
-    linked_accounts_tool_node
-)
+graph_builder.add_node("linked_accounts", linked_accounts_tool_node)
 
-graph_builder.add_node(
-    "complaints",
-    complaints_tool_node
-)
-graph_builder.add_node(
-    "counterparty_kyc",
-    counterparty_kyc_tool_node
-)
+graph_builder.add_node("complaints", complaints_tool_node)
+graph_builder.add_node("counterparty_kyc", counterparty_kyc_tool_node)
 
-graph_builder.add_node(
-    "counterparty_complaints",
-    counterparty_complaints_tool_node
-)
+graph_builder.add_node("counterparty_complaints", counterparty_complaints_tool_node)
 
-graph_builder.add_node(
-    "risk_assessment",
-    risk_assessment_node
-)
-graph_builder.add_edge(
-    "scenario_evidence",
-    "agent"
-)
+graph_builder.add_node("risk_assessment", risk_assessment_node)
+graph_builder.add_edge("scenario_evidence", "agent")
 
 # =========================================================
 # EDGES
 # =========================================================
 
-graph_builder.add_edge(
-    START,
-    "agent"
-)
+graph_builder.add_edge(START, "agent")
 
-graph_builder.add_conditional_edges(
-    "agent",
-    route_after_agent
-)
-graph_builder.add_edge(
-    "transactions",
-    "agent"
-)
+graph_builder.add_conditional_edges("agent", route_after_agent)
+graph_builder.add_edge("transactions", "agent")
 
-graph_builder.add_edge(
-    "kyc",
-    "agent"
-)
+graph_builder.add_edge("kyc", "agent")
 
-graph_builder.add_edge(
-    "linked_accounts",
-    "agent"
-)
+graph_builder.add_edge("linked_accounts", "agent")
 
-graph_builder.add_edge(
-    "complaints",
-    "agent"
-)
-graph_builder.add_edge(
-    "counterparty_kyc",
-    "agent"
-)
+graph_builder.add_edge("complaints", "agent")
+graph_builder.add_edge("counterparty_kyc", "agent")
 
-graph_builder.add_edge(
-    "counterparty_complaints",
-    "agent"
-)
+graph_builder.add_edge("counterparty_complaints", "agent")
 
-graph_builder.add_edge(
-    "risk_assessment",
-    END
-)
-graph_builder.add_edge(
-    "pattern_analysis",
-    "risk_assessment"
-)
+graph_builder.add_edge("risk_assessment", END)
+graph_builder.add_edge("pattern_analysis", "risk_assessment")
 
 
 # =========================================================
@@ -1239,50 +1008,38 @@ if __name__ == "__main__":
     # =====================================================
 
     SCENARIOS = {
-"SCN-001": {
-    "case_id": "CASE-001",
-    "account_key": "021174:800737690" ,
-},
+        "SCN-001": {
+            "case_id": "CASE-001",
+            "account_key": "021174:800737690",
+        },
         "SCN-002": {
             "case_id": "CASE-002",
             "account_key": "01467:8013C4030",
         },
-
         "SCN-003": {
             "case_id": "CASE-003",
             "account_key": None,
         },
-
         "SCN-004": {
             "case_id": "CASE-004",
             "account_key": None,
         },
         "SCN-005": {
-    "case_id": "CASE-005",
-    "account_key": "0112733:804BD7DC0",
-},
+            "case_id": "CASE-005",
+            "account_key": "0112733:804BD7DC0",
+        },
     }
 
-    scenario_id = (
-        sys.argv[1]
-        if len(sys.argv) > 1
-        else "SCN-002"
-    )
+    scenario_id = sys.argv[1] if len(sys.argv) > 1 else "SCN-002"
 
     if scenario_id not in SCENARIOS:
 
-        print(
-            f"Unknown scenario: {scenario_id}"
-        )
+        print(f"Unknown scenario: {scenario_id}")
 
-        print(
-            "\nAvailable scenarios:"
-        )
+        print("\nAvailable scenarios:")
 
         for scenario in SCENARIOS:
-            print(
-                f"  {scenario}"
-            )
+            print(f"  {scenario}")
 
         raise SystemExit(1)
 
@@ -1297,42 +1054,25 @@ if __name__ == "__main__":
     # =====================================================
 
     initial_state: InvestigationState = {
-
         "case_id": CASE_ID,
-
-    "scenario_id": scenario_id,
-
-
+        "scenario_id": scenario_id,
         "account_key": TEST_ACCOUNT,
-
         "transactions": [],
-
         "observations": [],
-
         "decision": "",
-
-        "timeline": [
-            f"CASE RECEIVED: {CASE_ID}",
-            f"SCENARIO: {scenario_id}"
-        ],
-
+        "timeline": [f"CASE RECEIVED: {CASE_ID}", f"SCENARIO: {scenario_id}"],
         "investigation_trace": [],
-
         "used_tools": [],
         "investigation_plan": [],
-
         "report": {},
-
-        "demo_mode": True
+        "demo_mode": True,
     }
 
     # =====================================================
     # RUN INVESTIGATION
     # =====================================================
 
-    result = graph.invoke(
-        initial_state
-    )
+    result = graph.invoke(initial_state)
 
     # =====================================================
     # PRINT RESULT
@@ -1340,59 +1080,28 @@ if __name__ == "__main__":
 
     print("\n")
 
-    print(
-        "======================================"
-    )
+    print("======================================")
 
-    print(
-        "   FINANCIAL CRIME INVESTIGATION"
-    )
+    print("   FINANCIAL CRIME INVESTIGATION")
 
-    print(
-        "======================================"
-    )
+    print("======================================")
 
-    print(
-        f"\nScenario: {scenario_id}"
-    )
+    print(f"\nScenario: {scenario_id}")
 
-    print(
-        f"Case ID: {result['case_id']}"
-    )
+    print(f"Case ID: {result['case_id']}")
 
-    print(
-        f"Account: {result['account_key']}"
-    )
+    print(f"Account: {result['account_key']}")
 
-    print(
-        "\n---------- INVESTIGATION TIMELINE ----------"
-    )
+    print("\n---------- INVESTIGATION TIMELINE ----------")
 
-    for index, event in enumerate(
-        result["timeline"],
-        start=1
-    ):
+    for index, event in enumerate(result["timeline"], start=1):
 
-        print(
-            f"{index}. {event}"
-        )
+        print(f"{index}. {event}")
 
-    print(
-        "\n---------- FINAL DECISION ----------"
-    )
+    print("\n---------- FINAL DECISION ----------")
 
-    print(
-        result["decision"]
-    )
+    print(result["decision"])
 
-    print(
-        "\n---------- INVESTIGATION REPORT ----------"
-    )
+    print("\n---------- INVESTIGATION REPORT ----------")
 
-    print(
-        json.dumps(
-            result["report"],
-            indent=4,
-            default=str
-        )
-    )
+    print(json.dumps(result["report"], indent=4, default=str))

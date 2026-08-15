@@ -2,7 +2,6 @@ import unittest
 
 from agent.graph import graph
 
-
 SCENARIOS = {
     "SCN-001": {
         "case_id": "CASE-001",
@@ -112,16 +111,12 @@ class ControlledScenarioRegressionTests(unittest.TestCase):
                 )
 
                 # ---- contextual tool sequence ----
-                expected_tools = SCENARIO_EXPECTED_TOOLS.get(
-                    scenario_id, []
-                )
+                expected_tools = SCENARIO_EXPECTED_TOOLS.get(scenario_id, [])
                 self.assertEqual(result["used_tools"], expected_tools)
 
                 # ---- Task 3: final report traceability ----
                 self.assertIn("collected_evidence", report)
-                self.assertIs(
-                    report["collected_evidence"], result["observations"]
-                )
+                self.assertIs(report["collected_evidence"], result["observations"])
                 self.assertIn("investigation_trace", report)
                 self.assertTrue(len(report["investigation_trace"]) > 0)
 
@@ -147,17 +142,11 @@ class ControlledScenarioRegressionTests(unittest.TestCase):
                 )
 
                 risk_events = [
-                    event
-                    for event in trace
-                    if event["event_type"] == "RISK_ASSESSMENT"
+                    event for event in trace if event["event_type"] == "RISK_ASSESSMENT"
                 ]
                 self.assertEqual(len(risk_events), 1)
-                self.assertEqual(
-                    risk_events[0]["risk_score"], expected["risk_score"]
-                )
-                self.assertEqual(
-                    risk_events[0]["risk_level"], expected["risk_level"]
-                )
+                self.assertEqual(risk_events[0]["risk_score"], expected["risk_score"])
+                self.assertEqual(risk_events[0]["risk_level"], expected["risk_level"])
 
                 # ---- Task 2: every risk factor is traceable ----
                 for factor in report["risk_breakdown"]:

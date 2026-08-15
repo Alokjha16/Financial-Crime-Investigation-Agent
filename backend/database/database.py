@@ -13,4 +13,5 @@ def get_db():
 
 def init_db():
     from backend.database.connection import init_db as _init_db
+
     _init_db()

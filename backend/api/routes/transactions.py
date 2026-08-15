@@ -1,14 +1,73 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from datetime import datetime
 from backend.database.connection import get_connection
-from backend.database.repository import TransactionRepository, AccountRepository, CaseRepository
+from backend.database.repository import (
+    TransactionRepository,
+    AccountRepository,
+    CaseRepository,
+)
 from backend.api.schemas import TransactionIngestRequest, TransactionResponse
+from backend.ml.scorer import score_transaction
+from backend.agent.service import trigger_investigation_for_case
 
 router = APIRouter()
 
 
+def _run_ml_scoring_and_investigate(transaction_id: str, account_id: str):
+    try:
+        txn_repo = TransactionRepository()
+        case_repo = CaseRepository()
+
+        txn = txn_repo.get_by_id(transaction_id)
+        if not txn:
+            return
+
+        existing_case = case_repo.get_by_transaction_id(transaction_id)
+        if existing_case:
+            return
+
+        ml_output = score_transaction(txn)
+        if not ml_output:
+            return
+
+        if ml_output["risk_score"] >= 50:
+            from datetime import datetime
+
+            case_id = f"CASE-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+            case_repo.create(
+                {
+                    "case_id": case_id,
+                    "transaction_id": transaction_id,
+                    "account_id": account_id,
+                    "status": "new",
+                    "risk_score": ml_output["risk_score"],
+                    "risk_level": ml_output["risk_level"],
+                    "typology": None,
+                    "evidence": ml_output["top_factors"],
+                    "recommendation": None,
+                }
+            )
+
+            case_repo.add_audit_log(
+                case_id=case_id,
+                action="case_created",
+                actor="ml_engine",
+                actor_type="system",
+                details={
+                    "risk_score": ml_output["risk_score"],
+                    "risk_level": ml_output["risk_level"],
+                    "top_factors": ml_output["top_factors"],
+                    "fraud_probability": ml_output["fraud_probability"],
+                },
+            )
+
+            trigger_investigation_for_case(case_id)
+    except Exception as e:
+        print(f"[ML SCORER BACKGROUND ERROR] {e}")
+
+
 @router.post("/")
-def ingest_transaction(request: TransactionIngestRequest):
+def ingest_transaction(request: TransactionIngestRequest, background_tasks: BackgroundTasks):
     txn_data = {
         "transaction_id": f"TXN-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
         "from_bank_id": request.from_bank_id,
@@ -34,29 +93,31 @@ def ingest_transaction(request: TransactionIngestRequest):
     to_acc = account_repo.get_by_id(request.to_account_id)
 
     if not from_acc:
-        account_repo.create({
-            "account_id": request.from_account_id,
-            "bank_id": request.from_bank_id,
-            "account_age_days": 365,
-            "kyc_status": "pending",
-        })
+        account_repo.create(
+            {
+                "account_id": request.from_account_id,
+                "bank_id": request.from_bank_id,
+                "account_age_days": 365,
+                "kyc_status": "pending",
+            }
+        )
 
     if not to_acc:
-        account_repo.create({
-            "account_id": request.to_account_id,
-            "bank_id": request.to_bank_id,
-            "account_age_days": 1,
-            "kyc_status": "incomplete",
-        })
+        account_repo.create(
+            {
+                "account_id": request.to_account_id,
+                "bank_id": request.to_bank_id,
+                "account_age_days": 1,
+                "kyc_status": "incomplete",
+            }
+        )
 
     txn_repo.bulk_create([txn_data])
 
-    case_repo.add_audit_log(
-        case_id="PENDING",
-        action="transaction_ingested",
-        actor="system",
-        actor_type="ingestion",
-        details={"transaction_id": txn_data["transaction_id"]},
+    background_tasks.add_task(
+        _run_ml_scoring_and_investigate,
+        transaction_id=txn_data["transaction_id"],
+        account_id=request.from_account_id,
     )
 
     return TransactionResponse(

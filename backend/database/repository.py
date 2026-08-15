@@ -1,6 +1,38 @@
+import json
 from typing import Optional, List, Dict, Any
 from mysql.connector import Error
 from backend.database.connection import get_connection
+
+
+# =========================================================
+# CASE STATE MACHINE VALIDATION
+# =========================================================
+
+VALID_STATE_TRANSITIONS = {
+    "new": ["under_investigation", "closed"],
+    "under_investigation": ["under_review", "closed"],
+    "under_review": ["escalated", "closed", "false_positive"],
+    "escalated": ["closed"],
+    "closed": [],  # Terminal state
+    "false_positive": [],  # Terminal state
+}
+
+
+def validate_state_transition(current_status: str, new_status: str) -> bool:
+    """
+    Validate that a state transition is allowed.
+    
+    Args:
+        current_status: Current case status
+        new_status: Desired new status
+    
+    Returns:
+        bool: True if transition is valid, False otherwise
+    """
+    if current_status not in VALID_STATE_TRANSITIONS:
+        return False
+    
+    return new_status in VALID_STATE_TRANSITIONS[current_status]
 
 
 class AccountRepository:
@@ -8,7 +40,9 @@ class AccountRepository:
         conn = get_connection()
         try:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM accounts WHERE account_id = %s", (account_id,))
+            cursor.execute(
+                "SELECT * FROM accounts WHERE account_id = %s", (account_id,)
+            )
             return cursor.fetchone()
         finally:
             cursor.close()
@@ -86,7 +120,10 @@ class TransactionRepository:
         conn = get_connection()
         try:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM transactions WHERE transaction_id = %s", (transaction_id,))
+            cursor.execute(
+                "SELECT * FROM transactions WHERE transaction_id = %s",
+                (transaction_id,),
+            )
             return cursor.fetchone()
         finally:
             cursor.close()
@@ -197,7 +234,9 @@ class CaseRepository:
             cursor.close()
             conn.close()
 
-    def get_all(self, status: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+    def get_all(
+        self, status: Optional[str] = None, limit: int = 100
+    ) -> List[Dict[str, Any]]:
         conn = get_connection()
         try:
             cursor = conn.cursor(dictionary=True)
@@ -250,23 +289,62 @@ class CaseRepository:
     def update_status(self, case_id: str, status: str) -> Optional[Dict[str, Any]]:
         conn = get_connection()
         try:
+            # Get current status
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT status FROM cases WHERE case_id = %s", (case_id,))
+            case = cursor.fetchone()
+            cursor.close()
+            
+            if not case:
+                conn.close()
+                return None
+            
+            current_status = case["status"]
+            
+            # Validate state transition
+            if not validate_state_transition(current_status, status):
+                conn.close()
+                raise ValueError(
+                    f"Invalid state transition: {current_status} -> {status}. "
+                    f"Valid transitions from {current_status}: {VALID_STATE_TRANSITIONS.get(current_status, [])}"
+                )
+            
+            # Update status
             cursor = conn.cursor()
             cursor.execute(
                 "UPDATE cases SET status = %s, updated_at = CURRENT_TIMESTAMP WHERE case_id = %s",
                 (status, case_id),
             )
             conn.commit()
-            if cursor.rowcount > 0:
-                return self.get_by_id(case_id)
-            return None
+            cursor.close()
+            
+            # Log the state change inline (same connection)
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                INSERT INTO audit_logs (case_id, action, actor, actor_type, details)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (case_id, "status_changed", "system", "system", json.dumps({"old_status": current_status, "new_status": status})),
+            )
+            conn.commit()
+            cursor.close()
+            
+            conn.close()
+            
+            return self.get_by_id(case_id)
         except Error as e:
             conn.rollback()
-            raise e
-        finally:
-            cursor.close()
             conn.close()
+            raise e
 
-    def update_decision(self, case_id: str, decision: str, notes: Optional[str], decided_by: Optional[str]) -> Optional[Dict[str, Any]]:
+    def update_decision(
+        self,
+        case_id: str,
+        decision: str,
+        notes: Optional[str],
+        decided_by: Optional[str],
+    ) -> Optional[Dict[str, Any]]:
         conn = get_connection()
         try:
             cursor = conn.cursor()
@@ -289,7 +367,9 @@ class CaseRepository:
             cursor.close()
             conn.close()
 
-    def add_evidence(self, case_id: str, evidence_data: Dict[str, Any]) -> Dict[str, Any]:
+    def add_evidence(
+        self, case_id: str, evidence_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         conn = get_connection()
         try:
             cursor = conn.cursor()
@@ -316,7 +396,14 @@ class CaseRepository:
             cursor.close()
             conn.close()
 
-    def add_audit_log(self, case_id: str, action: str, actor: str, actor_type: str, details: Dict[str, Any]) -> Dict[str, Any]:
+    def add_audit_log(
+        self,
+        case_id: str,
+        action: str,
+        actor: str,
+        actor_type: str,
+        details: Dict[str, Any],
+    ) -> Dict[str, Any]:
         conn = get_connection()
         try:
             cursor = conn.cursor()
@@ -365,7 +452,9 @@ class CaseRepository:
         conn = get_connection()
         try:
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM cases WHERE transaction_id = %s", (transaction_id,))
+            cursor.execute(
+                "SELECT * FROM cases WHERE transaction_id = %s", (transaction_id,)
+            )
             return cursor.fetchone()
         finally:
             cursor.close()
@@ -548,7 +637,12 @@ class MockDataRepository:
                 "risk_score": 12,
                 "risk_level": "LOW",
                 "typology": "FALSE_POSITIVE",
-                "evidence": ["8-year-old account", "Complete KYC", "Normal behavior", "Known recipient"],
+                "evidence": [
+                    "8-year-old account",
+                    "Complete KYC",
+                    "Normal behavior",
+                    "Known recipient",
+                ],
                 "recommendation": "CLEAR",
                 "decision": "false_positive",
                 "created_at": "2026-08-12T09:22:11Z",
@@ -613,9 +707,24 @@ class MockDataRepository:
         return {
             "account_id": account_id,
             "linked_accounts": [
-                {"account_id": "ACC8832", "link_type": "beneficiary", "strength": 0.9, "is_suspicious": True},
-                {"account_id": "ACC9912", "link_type": "previous_sender", "strength": 0.4, "is_suspicious": False},
-                {"account_id": "ACC7721", "link_type": "same_device", "strength": 0.7, "is_suspicious": True},
+                {
+                    "account_id": "ACC8832",
+                    "link_type": "beneficiary",
+                    "strength": 0.9,
+                    "is_suspicious": True,
+                },
+                {
+                    "account_id": "ACC9912",
+                    "link_type": "previous_sender",
+                    "strength": 0.4,
+                    "is_suspicious": False,
+                },
+                {
+                    "account_id": "ACC7721",
+                    "link_type": "same_device",
+                    "strength": 0.7,
+                    "is_suspicious": True,
+                },
             ],
             "total_count": 3,
         }
@@ -672,7 +781,10 @@ class MockDataRepository:
                 "action": "decision_made",
                 "actor": "analyst_1",
                 "actor_type": "human",
-                "details": {"decision": "ESCALATE", "notes": "Strong mule pattern confirmed"},
+                "details": {
+                    "decision": "ESCALATE",
+                    "notes": "Strong mule pattern confirmed",
+                },
                 "timestamp": "2026-08-12T10:45:00Z",
             },
         ]

@@ -2,7 +2,6 @@ import unittest
 
 from agent.tools import get_complaints, get_kyc
 
-
 FALSE_POSITIVE_SENDER = "0112733:804BD7DC0"
 FALSE_POSITIVE_RECEIVER = "0013029:8058F2A30"
 

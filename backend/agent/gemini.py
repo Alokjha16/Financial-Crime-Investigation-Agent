@@ -3,7 +3,6 @@ import os
 
 from google import genai
 
-
 client = None
 
 
@@ -44,27 +43,23 @@ PLAN_TOOL = {
                         "get_transactions",
                         "get_kyc",
                         "get_linked_accounts",
-                        "get_complaints"
-                    ]
+                        "get_complaints",
+                    ],
                 },
                 "description": (
-                    "Ordered list of investigation tools "
-                    "that should be executed."
-                )
+                    "Ordered list of investigation tools " "that should be executed."
+                ),
             },
             "reason": {
                 "type": "string",
                 "description": (
                     "Short explanation of why this "
                     "investigation plan is appropriate."
-                )
-            }
+                ),
+            },
         },
-        "required": [
-            "tools",
-            "reason"
-        ]
-    }
+        "required": ["tools", "reason"],
+    },
 }
 
 
@@ -72,10 +67,8 @@ PLAN_TOOL = {
 # GEMINI INVESTIGATION PLANNER
 # =========================================================
 
-def choose_investigation_plan(
-    account_key: str,
-    observations: list
-) -> dict:
+
+def choose_investigation_plan(account_key: str, observations: list) -> dict:
 
     prompt = f"""
 You are an AI financial-crime investigation planner.
@@ -121,49 +114,27 @@ RULES:
     try:
 
         interaction = get_client().interactions.create(
-            model="gemini-3.6-flash",
-            input=prompt,
-            tools=[PLAN_TOOL]
+            model="gemini-3.6-flash", input=prompt, tools=[PLAN_TOOL]
         )
 
         for item in interaction.outputs:
 
-            if getattr(
-                item,
-                "type",
-                None
-            ) == "function_call":
+            if getattr(item, "type", None) == "function_call":
 
                 arguments = item.arguments
 
-                if isinstance(
-                    arguments,
-                    str
-                ):
-                    arguments = json.loads(
-                        arguments
-                    )
+                if isinstance(arguments, str):
+                    arguments = json.loads(arguments)
 
                 return {
-                    "tools": arguments.get(
-                        "tools",
-                        []
-                    ),
-                    "reason": arguments.get(
-                        "reason",
-                        ""
-                    )
+                    "tools": arguments.get("tools", []),
+                    "reason": arguments.get("reason", ""),
                 }
 
-        raise RuntimeError(
-            "Gemini returned no investigation plan."
-        )
+        raise RuntimeError("Gemini returned no investigation plan.")
 
     except Exception as e:
 
-        print(
-            f"\n[GEMINI PLANNER ERROR] "
-            f"{type(e).__name__}: {e}\n"
-        )
+        print(f"\n[GEMINI PLANNER ERROR] " f"{type(e).__name__}: {e}\n")
 
         return None

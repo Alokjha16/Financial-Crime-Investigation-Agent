@@ -40,27 +40,17 @@ def detect_all_patterns(
 
     if account_key:
 
-        fan_out = detect_fan_out(
-            transactions,
-            account_key
-        )
+        fan_out = detect_fan_out(transactions, account_key)
 
         if fan_out["pattern_detected"]:
             patterns.append(fan_out)
 
-        fan_in = detect_fan_in(
-            transactions,
-            account_key
-        )
+        fan_in = detect_fan_in(transactions, account_key)
 
         if fan_in["pattern_detected"]:
             patterns.append(fan_in)
 
-        cycle = detect_cycle(
-            transactions,
-            account_key,
-            max_hops=10
-        )
+        cycle = detect_cycle(transactions, account_key, max_hops=10)
 
         if cycle["pattern_detected"]:
             patterns.append(cycle)
@@ -71,16 +61,12 @@ def detect_all_patterns(
 
     if include_network_patterns:
 
-        stack = detect_stack(
-            transactions
-        )
+        stack = detect_stack(transactions)
 
         if stack["pattern_detected"]:
             patterns.append(stack)
 
-        bipartite = detect_bipartite(
-            transactions
-        )
+        bipartite = detect_bipartite(transactions)
 
         if bipartite["pattern_detected"]:
             patterns.append(bipartite)
