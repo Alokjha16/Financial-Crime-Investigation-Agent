@@ -1,18 +1,23 @@
-from fastapi import APIRouter, HTTPException
+import json
+import json
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from backend.database.repository import TransactionRepository, CaseRepository
 from backend.api.schemas import MLOutputContract, MLScoreResponse
+from backend.agent.service import trigger_investigation_for_case
 
 router = APIRouter()
 
 
 @router.post("/score", response_model=MLScoreResponse)
-def score_transaction(ml_output: MLOutputContract):
+def score_transaction(ml_output: MLOutputContract, background_tasks: BackgroundTasks):
     txn_repo = TransactionRepository()
     case_repo = CaseRepository()
 
     txn = txn_repo.get_by_id(ml_output.transaction_id)
     if not txn:
-        raise HTTPException(status_code=404, detail="Transaction not found. Ingest transaction first.")
+        raise HTTPException(
+            status_code=404, detail="Transaction not found. Ingest transaction first."
+        )
 
     existing_case = case_repo.get_by_transaction_id(ml_output.transaction_id)
     if existing_case:
@@ -27,18 +32,21 @@ def score_transaction(ml_output: MLOutputContract):
 
     if ml_output.risk_score >= 50:
         from datetime import datetime
+
         case_id = f"CASE-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
-        case_repo.create({
-            "case_id": case_id,
-            "transaction_id": ml_output.transaction_id,
-            "account_id": txn["from_account_id"],
-            "status": "new",
-            "risk_score": ml_output.risk_score,
-            "risk_level": ml_output.risk_level,
-            "typology": None,
-            "evidence": ml_output.top_factors,
-            "recommendation": None,
-        })
+        case_repo.create(
+            {
+                "case_id": case_id,
+                "transaction_id": ml_output.transaction_id,
+                "account_id": txn["from_account_id"],
+                "status": "new",
+                "risk_score": ml_output.risk_score,
+                "risk_level": ml_output.risk_level,
+                "typology": None,
+                "evidence": ml_output.top_factors,
+                "recommendation": None,
+            }
+        )
 
         case_repo.add_audit_log(
             case_id=case_id,
@@ -52,13 +60,16 @@ def score_transaction(ml_output: MLOutputContract):
             },
         )
 
+        # Automatically trigger investigation agent in background
+        background_tasks.add_task(trigger_investigation_for_case, case_id)
+
         return MLScoreResponse(
             case_id=case_id,
             status="new",
             transaction_id=ml_output.transaction_id,
             risk_score=ml_output.risk_score,
             risk_level=ml_output.risk_level,
-            message="Suspicious case created",
+            message="Suspicious case created and investigation triggered",
         )
     else:
         return MLScoreResponse(

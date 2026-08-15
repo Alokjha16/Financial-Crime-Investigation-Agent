@@ -19,7 +19,9 @@ from backend.api.schemas import (
 router = APIRouter()
 
 
-@router.get("/{account_id}/transaction-history", response_model=TransactionHistoryResponse)
+@router.get(
+    "/{account_id}/transaction-history", response_model=TransactionHistoryResponse
+)
 def get_transaction_history(account_id: str, limit: int = 50):
     repo = TransactionRepository()
     transactions = repo.get_by_account(account_id, limit=limit)
@@ -28,7 +30,11 @@ def get_transaction_history(account_id: str, limit: int = 50):
         transactions=[
             {
                 "transaction_id": t["transaction_id"],
-                "timestamp": t["timestamp"].isoformat() if hasattr(t["timestamp"], "isoformat") else str(t["timestamp"]),
+                "timestamp": (
+                    t["timestamp"].isoformat()
+                    if hasattr(t["timestamp"], "isoformat")
+                    else str(t["timestamp"])
+                ),
                 "amount": t["amount_paid"],
                 "from_account": t["from_account_id"],
                 "to_account": t["to_account_id"],
@@ -72,7 +78,11 @@ def get_linked_accounts(account_id: str):
         account_id=account_id,
         linked_accounts=[
             {
-                "account_id": link["to_account_id"] if link["from_account_id"] == account_id else link["from_account_id"],
+                "account_id": (
+                    link["to_account_id"]
+                    if link["from_account_id"] == account_id
+                    else link["from_account_id"]
+                ),
                 "link_type": link["link_type"],
                 "strength": link["strength"],
                 "is_suspicious": link["is_suspicious"],
@@ -95,7 +105,11 @@ def get_complaints(account_id: str):
                 "complaint_type": c["complaint_type"],
                 "description": c["description"],
                 "status": c["status"],
-                "filed_at": c["filed_at"].isoformat() if hasattr(c["filed_at"], "isoformat") else str(c["filed_at"]),
+                "filed_at": (
+                    c["filed_at"].isoformat()
+                    if hasattr(c["filed_at"], "isoformat")
+                    else str(c["filed_at"])
+                ),
             }
             for c in complaints
         ],

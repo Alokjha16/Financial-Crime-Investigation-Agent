@@ -1,0 +1,46 @@
+{
+  "scenario_id": "SCN-005",
+  "name": "False Positive Investigation",
+  "description": "Controlled investigation of a high-value transaction that is not laundering.",
+  "source": "Processed transaction and synthetic supporting data",
+  "synthetic_evidence": true,
+  "pattern_type": "NONE",
+  "typology": "FALSE-POSITIVE",
+  "ground_truth": {
+    "transaction_count": 1,
+    "is_laundering": false
+  },
+  "entry_evidence": {
+    "account_ids": [
+      "804BD7DC0",
+      "8058F2A30"
+    ],
+    "transactions": [
+      {
+        "timestamp": "2022/09/05 08:46",
+        "from_bank": "0112733",
+        "from_account": "804BD7DC0",
+        "to_bank": "0013029",
+        "to_account": "8058F2A30",
+        "amount_received": 714701452.89,
+        "receiving_currency": "Rupee",
+        "amount_paid": 714701452.89,
+        "payment_currency": "Rupee",
+        "payment_format": "Cheque",
+        "is_laundering": 0
+      }
+    ]
+  },
+  "investigation_config": {
+    "deterministic_tools": [
+      "get_transactions",
+      "get_kyc",
+      "get_complaints",
+      "get_counterparty_kyc",
+      "get_counterparty_complaints"
+    ],
+    "kyc_source": "full",
+    "complaints_source": "full",
+    "counterparty_account_key": "0013029:8058F2A30"
+  }
+}

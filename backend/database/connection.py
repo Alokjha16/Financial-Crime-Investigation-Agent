@@ -17,10 +17,7 @@ dbconfig = {
 }
 
 connection_pool = pooling.MySQLConnectionPool(
-    pool_name="financial_crime_pool",
-    pool_size=5,
-    pool_reset_session=True,
-    **dbconfig
+    pool_name="financial_crime_pool", pool_size=5, pool_reset_session=True, **dbconfig
 )
 
 

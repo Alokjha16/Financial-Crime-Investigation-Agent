@@ -44,9 +44,11 @@ SCENARIOS = [
     },
 ]
 
+
 def load_ground_truth():
     with open(GROUND_TRUTH, "r", encoding="utf-8") as f:
         return json.load(f)
+
 
 def unique_accounts(transactions):
     accounts = []
@@ -59,6 +61,7 @@ def unique_accounts(transactions):
                 accounts.append(account)
 
     return accounts
+
 
 def main():
     gt = load_ground_truth()
@@ -73,8 +76,7 @@ def main():
     for scenario in SCENARIOS:
 
         matches = [
-            p for p in patterns
-            if p.get("pattern_type") == scenario["pattern_type"]
+            p for p in patterns if p.get("pattern_type") == scenario["pattern_type"]
         ]
 
         if not matches:
@@ -99,18 +101,20 @@ def main():
             "typology": scenario["typology"],
             "ground_truth": {
                 "pattern_index": patterns.index(pattern),
-                "transaction_count": pattern.get("transaction_count", len(transactions)),
-                "is_laundering": True
+                "transaction_count": pattern.get(
+                    "transaction_count", len(transactions)
+                ),
+                "is_laundering": True,
             },
             "entry_evidence": {
                 "account_ids": accounts[:20],
-                "transactions": transactions
+                "transactions": transactions,
             },
             "tools_expected": [
                 "transactions",
                 "account_kyc",
                 "linked_accounts",
-                "complaints"
+                "complaints",
             ],
             "investigation_flow": [
                 "transaction lookup",
@@ -121,8 +125,8 @@ def main():
                 "pattern detection",
                 "evidence correlation",
                 "risk scoring",
-                "investigation report"
-            ]
+                "investigation report",
+            ],
         }
 
         # Individual scenario JSON
@@ -131,14 +135,16 @@ def main():
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(scenario_data, f, indent=2)
 
-        generated_scenarios.append({
-            "scenario_id": scenario["scenario_id"],
-            "name": scenario["name"],
-            "typology": scenario["typology"],
-            "pattern_type": scenario["pattern_type"],
-            "source": "IBM HI-Small ground truth",
-            "ground_truth_pattern_index": patterns.index(pattern)
-        })
+        generated_scenarios.append(
+            {
+                "scenario_id": scenario["scenario_id"],
+                "name": scenario["name"],
+                "typology": scenario["typology"],
+                "pattern_type": scenario["pattern_type"],
+                "source": "IBM HI-Small ground truth",
+                "ground_truth_pattern_index": patterns.index(pattern),
+            }
+        )
 
         # Synthetic KYC evidence
         for account_id in accounts[:20]:
@@ -148,36 +154,40 @@ def main():
 
             all_seen_accounts.add(account_id)
 
-            kyc_rows.append({
-                "account_id": account_id,
-                "kyc_status": "VERIFIED",
-                "customer_type": "SYNTHETIC_DEMO_CUSTOMER",
-                "country": "SYNTHETIC",
-                "risk_rating": "HIGH",
-                "account_open_date": "2020-01-15",
-                "occupation": "International Trading",
-                "source_of_funds": "Business Revenue",
-                "pep_flag": "false",
-                "sanctions_flag": "false",
-                "kyc_last_review_date": "2022-08-15",
-                "evidence_source": "SYNTHETIC_DEMO_DATA"
-            })
+            kyc_rows.append(
+                {
+                    "account_id": account_id,
+                    "kyc_status": "VERIFIED",
+                    "customer_type": "SYNTHETIC_DEMO_CUSTOMER",
+                    "country": "SYNTHETIC",
+                    "risk_rating": "HIGH",
+                    "account_open_date": "2020-01-15",
+                    "occupation": "International Trading",
+                    "source_of_funds": "Business Revenue",
+                    "pep_flag": "false",
+                    "sanctions_flag": "false",
+                    "kyc_last_review_date": "2022-08-15",
+                    "evidence_source": "SYNTHETIC_DEMO_DATA",
+                }
+            )
 
         # Synthetic complaint for each scenario.
-        complaint_rows.append({
-            "complaint_id": f"{scenario['scenario_id']}-CMP-001",
-            "scenario_id": scenario["scenario_id"],
-            "account_id": accounts[0] if accounts else "",
-            "complaint_date": "2022-09-05",
-            "complaint_type": "SUSPICIOUS_TRANSACTION",
-            "severity": "HIGH",
-            "status": "OPEN",
-            "description": (
-                f"Synthetic complaint associated with the "
-                f"{scenario['typology']} investigation scenario."
-            ),
-            "evidence_source": "SYNTHETIC_DEMO_DATA"
-        })
+        complaint_rows.append(
+            {
+                "complaint_id": f"{scenario['scenario_id']}-CMP-001",
+                "scenario_id": scenario["scenario_id"],
+                "account_id": accounts[0] if accounts else "",
+                "complaint_date": "2022-09-05",
+                "complaint_type": "SUSPICIOUS_TRANSACTION",
+                "severity": "HIGH",
+                "status": "OPEN",
+                "description": (
+                    f"Synthetic complaint associated with the "
+                    f"{scenario['typology']} investigation scenario."
+                ),
+                "evidence_source": "SYNTHETIC_DEMO_DATA",
+            }
+        )
 
     # Master scenario configuration
     scenario_index = {
@@ -186,23 +196,16 @@ def main():
         "ground_truth_source": "data/ground_truth/laundering_patterns.json",
         "total_ground_truth_patterns": gt.get("total_patterns"),
         "synthetic_evidence": True,
-        "scenarios": generated_scenarios
+        "scenarios": generated_scenarios,
     }
 
-    with open(
-        SCENARIO_DIR / "demo_scenarios.json",
-        "w",
-        encoding="utf-8"
-    ) as f:
+    with open(SCENARIO_DIR / "demo_scenarios.json", "w", encoding="utf-8") as f:
         json.dump(scenario_index, f, indent=2)
 
     # Synthetic KYC CSV
     if kyc_rows:
         with open(
-            SYNTHETIC_DIR / "kyc_demo.csv",
-            "w",
-            newline="",
-            encoding="utf-8"
+            SYNTHETIC_DIR / "kyc_demo.csv", "w", newline="", encoding="utf-8"
         ) as f:
             writer = csv.DictWriter(f, fieldnames=kyc_rows[0].keys())
             writer.writeheader()
@@ -211,15 +214,9 @@ def main():
     # Synthetic complaints CSV
     if complaint_rows:
         with open(
-            SYNTHETIC_DIR / "complaints_demo.csv",
-            "w",
-            newline="",
-            encoding="utf-8"
+            SYNTHETIC_DIR / "complaints_demo.csv", "w", newline="", encoding="utf-8"
         ) as f:
-            writer = csv.DictWriter(
-                f,
-                fieldnames=complaint_rows[0].keys()
-            )
+            writer = csv.DictWriter(f, fieldnames=complaint_rows[0].keys())
             writer.writeheader()
             writer.writerows(complaint_rows)
 
@@ -239,6 +236,7 @@ def main():
     print(f"Scenarios : {SCENARIO_DIR}")
     print(f"Synthetic : {SYNTHETIC_DIR}")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     main()
