@@ -1,0 +1,71 @@
+{
+  "timestamp": "2026-08-16T12:28:26.288041",
+  "evaluation_type": "live_1000_transactions",
+  "sample_size": 1000,
+  "thresholds": {
+    "baseline_low": 20,
+    "baseline_high": 65,
+    "enhanced_thresh": 45
+  },
+  "metrics": {
+    "accuracy": 0.941,
+    "precision": 0.4429,
+    "recall": 0.6078,
+    "f1": 0.5124,
+    "fpr": 0.0411,
+    "fnr": 0.3922,
+    "confusion_matrix": {
+      "tp": 31,
+      "tn": 910,
+      "fp": 39,
+      "fn": 20
+    },
+    "missed_laundering": 20,
+    "total_laundering": 51,
+    "total_legitimate": 949,
+    "false_positives": 39,
+    "correct": 941,
+    "incorrect": 59
+  },
+  "routing_breakdown": {
+    "baseline_bypass": 972,
+    "enhanced_stage": 28,
+    "direct_high_risk": 54,
+    "final_flagged": 70,
+    "final_not_flagged": 930
+  },
+  "enhanced_errors": {
+    "error_count": 22,
+    "transactions_affected": 22,
+    "error_messages": [
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'",
+      "[ENHANCED SCORER ERROR] '<' not supported between instances of 'float' and 'str'"
+    ]
+  },
+  "verification": {
+    "used_current_code": true,
+    "used_current_models": true,
+    "random_state": 42
+  },
+  "elapsed_seconds": 91.69
+}

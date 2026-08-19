@@ -1,0 +1,38 @@
+{
+  "source": "IBM HI-Small_Patterns.txt",
+  "total_patterns": 370,
+  "pattern_families": {
+    "FAN-OUT": {
+      "pattern_count": 48,
+      "transaction_count": 342
+    },
+    "CYCLE": {
+      "pattern_count": 54,
+      "transaction_count": 287
+    },
+    "GATHER-SCATTER": {
+      "pattern_count": 51,
+      "transaction_count": 716
+    },
+    "STACK": {
+      "pattern_count": 43,
+      "transaction_count": 466
+    },
+    "RANDOM": {
+      "pattern_count": 41,
+      "transaction_count": 191
+    },
+    "BIPARTITE": {
+      "pattern_count": 49,
+      "transaction_count": 263
+    },
+    "FAN-IN": {
+      "pattern_count": 40,
+      "transaction_count": 318
+    },
+    "SCATTER-GATHER": {
+      "pattern_count": 44,
+      "transaction_count": 626
+    }
+  }
+}

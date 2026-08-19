@@ -1,0 +1,17 @@
+# Core backend runtime
+fastapi>=0.115.6,<1.0.0
+uvicorn>=0.34.0,<1.0.0
+pydantic>=2.10.0,<3.0.0
+python-dotenv>=1.0.1,<2.0.0
+mysql-connector-python>=9.1.0,<10.0.0
+requests>=2.32.0,<3.0.0
+
+# Data + ML dependencies
+pandas>=2.2.0,<3.0.0
+numpy>=1.26.0,<3.0.0
+scikit-learn>=1.5.0,<2.0.0
+joblib>=1.4.0,<2.0.0
+
+# Agent / LLM dependencies
+langgraph>=0.2.0,<1.0.0
+google-genai>=1.0.0,<2.0.0

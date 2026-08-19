@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  --bg-primary:    #F5F6FA;
+  --bg-secondary:  #EAEFF8;
+  --bg-card:       #FFFFFF;
+  --accent-purple: #7C3AED;
+  --accent-pink:   #EC4899;
+  --accent-green:  #10B981;
+  --accent-orange: #F97316;
+  --accent-blue:   #3B82F6;
+  --risk-high:     #EF4444;
+  --risk-medium:   #F97316;
+  --risk-low:      #10B981;
+  --border:        rgba(15,23,42,0.07);
+  --text-primary:  #1E293B;
+  --text-muted:    #64748B;
+  --text-subtle:   #94A3B8;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.12); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(59,130,246,0.4); }
+
+/* ── Light Card & Components ───────────────────────────── */
+@layer components {
+  .glass-card {
+    border-radius: 16px;
+    background: var(--bg-card);
+    border: 1px solid rgba(15,23,42,0.06);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.02);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+  .glass-card:hover {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.09), 0 2px 6px rgba(0,0,0,0.04);
+  }
+
+  .glass-sidebar {
+    background: var(--bg-card);
+    border-right: 1px solid rgba(15,23,42,0.07);
+    box-shadow: 2px 0 16px rgba(0,0,0,0.03);
+  }
+
+  .btn-primary {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: white;
+    box-shadow: 0 4px 14px rgba(59,130,246,0.25);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.35);
+  }
+
+  .btn-danger {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+    box-shadow: 0 4px 14px rgba(239,68,68,0.25);
+  }
+  .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239,68,68,0.35); }
+
+  .btn-success {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+  }
+  .btn-success:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
+
+  .btn-warning {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+    background: linear-gradient(135deg, #F97316, #EA580C);
+    color: white;
+    box-shadow: 0 4px 14px rgba(249,115,22,0.25);
+  }
+  .btn-warning:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(249,115,22,0.35); }
+
+  .btn-ghost {
+    @apply px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+    background: rgba(15,23,42,0.04);
+    border: 1px solid rgba(15,23,42,0.08);
+    color: #64748B;
+  }
+  .btn-ghost:hover {
+    background: rgba(15,23,42,0.08);
+    color: #0F172A;
+  }
+
+  /* Vibrant Risk badges */
+  .badge-high {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(239,68,68,0.10);
+    color: #EF4444;
+    border: 1px solid rgba(239,68,68,0.22);
+  }
+  .badge-medium {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(249,115,22,0.10);
+    color: #F97316;
+    border: 1px solid rgba(249,115,22,0.22);
+  }
+  .badge-low {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(16,185,129,0.10);
+    color: #10B981;
+    border: 1px solid rgba(16,185,129,0.22);
+  }
+  .badge-escalated {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(124,58,237,0.10);
+    color: #7C3AED;
+    border: 1px solid rgba(124,58,237,0.22);
+  }
+  .badge-cleared {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(16,185,129,0.10);
+    color: #10B981;
+    border: 1px solid rgba(16,185,129,0.22);
+  }
+  .badge-flagged {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(249,115,22,0.10);
+    color: #F97316;
+    border: 1px solid rgba(249,115,22,0.22);
+  }
+  .badge-review {
+    @apply text-xs font-bold px-2.5 py-1 rounded-full;
+    background: rgba(59,130,246,0.10);
+    color: #3B82F6;
+    border: 1px solid rgba(59,130,246,0.22);
+  }
+
+  .orb { display: none; }
+  .page-enter { animation: fadeIn 0.35s ease-out; }
+
+  /* Sidebar nav item with soft colored pill */
+  .nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer;
+    color: #64748B;
+  }
+  .nav-item:hover { background: rgba(15,23,42,0.04); color: #1E293B; }
+  .nav-item.active {
+    background: #EFF6FF;
+    color: #2563EB;
+    font-weight: 600;
+  }
+
+  /* Stat value */
+  .stat-value {
+    @apply text-3xl font-bold tracking-tight;
+    color: #0F172A;
+  }
+
+  /* Section label */
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-wider;
+    color: #94A3B8;
+  }
+}
+
+/* ── Subtle dot grid ──────────────────────────────────── */
+.bg-grid {
+  background-image: radial-gradient(circle, rgba(15,23,42,0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── React Flow overrides ─────────────────────────────── */
+.react-flow__background { background: transparent !important; }
+.react-flow__edge-path { stroke: rgba(59,130,246,0.6) !important; stroke-width: 2 !important; }
+.react-flow__edge.animated path { stroke-dasharray: 8; animation: dashdraw 0.8s linear infinite; }
+@keyframes dashdraw { to { stroke-dashoffset: -16; } }
+.react-flow__controls { background: #FFFFFF !important; border: 1px solid rgba(15,23,42,0.08) !important; border-radius: 12px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important; }
+.react-flow__controls-button { background: transparent !important; border: none !important; color: #64748B !important; }
+.react-flow__controls-button:hover { background: rgba(59,130,246,0.08) !important; color: #2563EB !important; }

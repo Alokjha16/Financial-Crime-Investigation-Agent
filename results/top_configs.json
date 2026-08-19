@@ -1,0 +1,122 @@
+{
+  "best_recall": {
+    "accuracy": 0.91635,
+    "precision": 0.363675,
+    "recall": 0.822222,
+    "f1": 0.504296,
+    "fpr": 0.078513,
+    "fnr": 0.177778,
+    "confusion_matrix": {
+      "tp": 851,
+      "tn": 17476,
+      "fp": 1489,
+      "fn": 184
+    },
+    "missed_laundering": 184,
+    "total_laundering": 1035,
+    "total_legitimate": 18965,
+    "roc_auc": null,
+    "strategy": "enhanced_only",
+    "baseline_low": NaN,
+    "baseline_high": NaN,
+    "enhanced_thresh": NaN,
+    "threshold": 20.0
+  },
+  "best_f1": {
+    "accuracy": 0.95305,
+    "precision": 0.538772,
+    "recall": 0.644444,
+    "f1": 0.58689,
+    "fpr": 0.030108,
+    "fnr": 0.355556,
+    "confusion_matrix": {
+      "tp": 667,
+      "tn": 18394,
+      "fp": 571,
+      "fn": 368
+    },
+    "missed_laundering": 368,
+    "total_laundering": 1035,
+    "total_legitimate": 18965,
+    "roc_auc": null,
+    "strategy": "staged",
+    "baseline_low": 20.0,
+    "baseline_high": 65.0,
+    "enhanced_thresh": 45.0,
+    "threshold": NaN
+  },
+  "best_3tier_recall": {
+    "clear_max": 25.0,
+    "escalate_min": 60.0,
+    "accuracy": 0.9029,
+    "precision": 0.3278,
+    "recall": 0.8338,
+    "f1": 0.4706,
+    "fpr": 0.0933,
+    "fnr": 0.1662,
+    "missed_laundering": 172.0,
+    "clear_count": 17367.0,
+    "review_count": 1009.0,
+    "escalate_count": 1624.0,
+    "l_clear": 172.0,
+    "l_review": 158.0,
+    "l_escalate": 705.0
+  },
+  "baseline_only_40": {
+    "accuracy": 0.93545,
+    "precision": 0.418367,
+    "recall": 0.633816,
+    "f1": 0.504034,
+    "fpr": 0.048089,
+    "fnr": 0.366184,
+    "confusion_matrix": {
+      "tp": 656,
+      "tn": 18053,
+      "fp": 912,
+      "fn": 379
+    },
+    "missed_laundering": 379,
+    "total_laundering": 1035,
+    "total_legitimate": 18965,
+    "roc_auc": null,
+    "strategy": "baseline_only_40"
+  },
+  "current_staged": {
+    "accuracy": 0.9543,
+    "precision": 0.555658,
+    "recall": 0.583575,
+    "f1": 0.569274,
+    "fpr": 0.025468,
+    "fnr": 0.416425,
+    "confusion_matrix": {
+      "tp": 604,
+      "tn": 18482,
+      "fp": 483,
+      "fn": 431
+    },
+    "missed_laundering": 431,
+    "total_laundering": 1035,
+    "total_legitimate": 18965,
+    "roc_auc": null,
+    "strategy": "current_staged_40_75_40"
+  },
+  "ensemble_max_40": {
+    "accuracy": 0.92045,
+    "precision": 0.370938,
+    "recall": 0.771981,
+    "f1": 0.501098,
+    "fpr": 0.071447,
+    "fnr": 0.228019,
+    "confusion_matrix": {
+      "tp": 799,
+      "tn": 17610,
+      "fp": 1355,
+      "fn": 236
+    },
+    "missed_laundering": 236,
+    "total_laundering": 1035,
+    "total_legitimate": 18965,
+    "roc_auc": null,
+    "strategy": "ensemble_max_40"
+  }
+}
