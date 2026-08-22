@@ -12,12 +12,13 @@ const VIBRANT_RISK_COLORS = {
 
 const RADIAN = Math.PI / 180;
 const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+  if (percent < 0.04) return null;
   const r = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + r * Math.cos(-midAngle * RADIAN);
   const y = cy + r * Math.sin(-midAngle * RADIAN);
   return (
     <text x={x} y={y} fill="#FFFFFF" textAnchor="middle" dominantBaseline="central"
-      style={{ fontSize: 12, fontWeight: 800, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}>
+      style={{ fontSize: 11, fontWeight: 800, filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))" }}>
       {`${(percent * 100).toFixed(0)}%`}
     </text>
   );
@@ -60,16 +61,16 @@ export default function RiskDonut({ stats }) {
         className="glass-card p-6">
         <p className="text-sm font-bold mb-1" style={{ color: '#0F172A' }}>Risk Distribution</p>
         <p className="text-xs mb-4" style={{ color: '#94A3B8' }}>Flagged cases by severity</p>
-        <div className="flex items-center gap-4">
-          <div className="h-52 flex-1 relative">
+        <div className="flex items-center justify-between gap-3">
+          <div className="h-48 w-44 sm:w-48 shrink-0 relative">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart style={{ filter: "drop-shadow(0 6px 14px rgba(0,0,0,0.07))" }}>
+              <PieChart>
                 <Pie
                   data={riskDist}
                   cx="50%"
                   cy="50%"
-                  innerRadius={44}
-                  outerRadius={84}
+                  innerRadius={38}
+                  outerRadius={65}
                   paddingAngle={3}
                   labelLine={false}
                   label={renderCustomLabel}
@@ -88,14 +89,14 @@ export default function RiskDonut({ stats }) {
           </div>
 
           {/* Legend */}
-          <div className="space-y-3.5 pr-2">
+          <div className="space-y-3.5 flex-1 min-w-0 pr-1">
             {riskDist.map((item) => {
               const color = VIBRANT_RISK_COLORS[item.name] || item.color;
               return (
-                <div key={item.name} className="flex items-center gap-3">
+                <div key={item.name} className="flex items-center gap-2.5">
                   <span className="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm" style={{ background: color }} />
-                  <span className="text-xs font-semibold" style={{ color: '#475569' }}>{item.name}</span>
-                  <span className="text-xs font-black ml-auto pl-3" style={{ color: '#0F172A' }}>{item.value}</span>
+                  <span className="text-xs font-semibold truncate" style={{ color: '#475569' }}>{item.name}</span>
+                  <span className="text-xs font-black ml-auto pl-2" style={{ color: '#0F172A' }}>{item.value}</span>
                 </div>
               );
             })}
