@@ -1,4 +1,4 @@
-jhaalokfrom fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from mysql.connector import Error
 from typing import List
 from backend.database.connection import get_connection
