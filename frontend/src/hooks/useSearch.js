@@ -1,4 +1,4 @@
-z,mcnqeoitfdgfoiuyiskdjbimport { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { MOCK_CASES } from "../data/mockData";
 
 /**
